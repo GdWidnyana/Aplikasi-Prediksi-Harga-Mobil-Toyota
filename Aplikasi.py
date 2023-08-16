@@ -136,9 +136,29 @@ if visualization_option == "Dashboard":
     st.write("Scatter Plot of Price vs Mileage:")
     st.altair_chart(scatter_plot)
 
-    avg_price_by_fuel = filtered_data.groupby("fuelType")["price"].mean()
+    avg_price_by_mil = filtered_data.groupby ("mileage")["price"].mean()
+    st.write("Average Price by Mileage:")
+    st.bar_chart(avg_price_by_mil)
+    
+    avg_price_by_fuel = filtered_data.groupby ("fuelType")["price"].mean()
     st.write("Average Price by Fuel Type:")
     st.bar_chart(avg_price_by_fuel)
+    
+    avg_price_by_trans = filtered_data.groupby ("transmission")["price"].mean()
+    st.write("Average Price by Transmission:")
+    st.bar_chart(avg_price_by_trans)
+    
+    avg_price_by_tax = filtered_data.groupby ("tax")["price"].mean()
+    st.write("Average Price by Tax in Euro:")
+    st.bar_chart(avg_price_by_tax)
+    
+    avg_price_by_mpg = filtered_data.groupby ("mpg")["price"].mean()
+    st.write("Average Price by MPG:")
+    st.bar_chart(avg_price_by_mpg)
+    
+    avg_price_by_engineSize = filtered_data.groupby ("engineSize")["price"].mean()
+    st.write("Average Price by Engine Size:")
+    st.bar_chart(avg_price_by_engineSize)
 
 if visualization_option == "Distribusi Data":
     st.subheader("Distribusi Model Mobil")
