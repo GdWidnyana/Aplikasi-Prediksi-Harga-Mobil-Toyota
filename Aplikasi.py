@@ -3,6 +3,7 @@ import streamlit as st
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
+import altair as alt
 
 
 # Load the trained model
@@ -118,11 +119,61 @@ data = pd.read_csv('toyota.csv')
 
 
 # Pilihan visualisasi
-visualization_option = st.selectbox("Pilih Visualisasi:", ["Distribusi Data", "Hubungan dengan Harga"])
+visualization_option = st.selectbox("Pilih Visualisasi:", ["Dashboard", "Distribusi Data", "Hubungan dengan Harga"])
+
+if visualization_option == "Dashboard":
+    # Filter options
+    selected_year = st.sidebar.slider("Select Year", int(data["year"].min()), int(data["year"].max()))
+    transmission_options = data["transmission"].unique()
+    selected_transmission = st.sidebar.selectbox("Select Transmission", transmission_options)
+    fuel_type_options = data["fuelType"].unique()
+    selected_fuel_type = st.sidebar.selectbox("Select Fuel Type", fuel_type_options)
+
+    # Apply filters
+    filtered_data = data[
+        (data["year"] == selected_year) &
+        (data["transmission"] == selected_transmission) &
+        (data["fuelType"] == selected_fuel_type)
+    ]
+
+    # Display filtered data in a table
+    st.write("Filtered Data:")
+    st.write(filtered_data)
+
+    # Create scatter plot using Altair
+    scatter_plot = alt.Chart(filtered_data).mark_circle().encode(
+        x='price',
+        y='mileage',
+        tooltip=['price', 'mileage']
+    ).properties(
+        width=600,
+        height=400
+    )
+    st.write("Scatter Plot of Price vs Mileage:")
+    st.altair_chart(scatter_plot)
+
+    # Display a bar chart of average price by fuel type
+    avg_price_by_fuel = filtered_data.groupby("fuelType")["price"].mean()
+    st.write("Average Price by Fuel Type:")
+    st.bar_chart(avg_price_by_fuel)
+
+    # Display a line chart of average mpg over the years
+    avg_mpg_by_year = filtered_data.groupby("year")["mpg"].mean()
+    st.write("Average MPG Over the Years:")
+    st.line_chart(avg_mpg_by_year)
 
 if visualization_option == "Distribusi Data":
+    st.subheader("Distribusi Model Mobil")
+    plt.figure(figsize=(12, 6))
+    plt.bar(data['model'].value_counts().index, data['model'].value_counts().values)
+    plt.xlabel('Model Mobil')
+    plt.ylabel('Frekuensi')
+    plt.title('Distribusi Model Mobil')
+    plt.xticks(rotation=45)
+    st.pyplot()
+    
     st.subheader("Distribusi Tahun Keluaran Mobil")
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(25, 6))
     plt.hist(data['year'], bins=20, density=True, alpha=0.6, color='blue')
     plt.xlabel('Tahun Keluaran')
     plt.ylabel('Frekuensi')
@@ -136,6 +187,14 @@ if visualization_option == "Distribusi Data":
     plt.ylabel('Frekuensi')
     plt.title('Distribusi Jenis Transmisi Mobil')
     st.pyplot()
+    
+    st.subheader("Distribusi Jarak Tempuh Mobil")
+    plt.figure(figsize=(10, 6))
+    plt.hist(data['mileage'], bins=20, density=True, alpha=0.6, color='blue')
+    plt.xlabel('Jarak Tempuh')
+    plt.ylabel('Frekuensi')
+    plt.title('Distribusi Jarak Tempuh Mobil')
+    st.pyplot()
 
     st.subheader("Distribusi Jenis Bahan Bakar Mobil")
     plt.figure(figsize=(8, 5))
@@ -144,10 +203,45 @@ if visualization_option == "Distribusi Data":
     plt.ylabel('Frekuensi')
     plt.title('Distribusi Jenis Bahan Bakar Mobil')
     st.pyplot()
+    
+    st.subheader("Distribusi Biaya Pajak Mobil (Euro)")
+    plt.figure(figsize=(10, 6))
+    plt.hist(data['tax'], bins=20, density=True, alpha=0.6, color='green')
+    plt.xlabel('Biaya Pajak (€)')
+    plt.ylabel('Frekuensi')
+    plt.title('Distribusi Biaya Pajak Mobil')
+    st.pyplot()
+    
+    st.subheader("Distribusi Konsumsi BBM Mobil")
+    plt.figure(figsize=(10, 6))
+    plt.hist(data['mpg'], bins=20, density=True, alpha=0.6, color='purple')
+    plt.xlabel('Konsumsi BBM')
+    plt.ylabel('Frekuensi')
+    plt.title('Distribusi Konsumsi BBM Mobil')
+    st.pyplot()
+    
+    st.subheader("Distribusi Engine Size Mobil")
+    plt.figure(figsize=(10, 6))
+    plt.hist(data['engineSize'], bins=20, density=True, alpha=0.6, color='orange')
+    plt.xlabel('Engine Size')
+    plt.ylabel('Frekuensi')
+    plt.title('Distribusi Engine Size Mobil')
+    st.pyplot()
 
     # ... (Visualisasi lainnya) ...
 
 elif visualization_option == "Hubungan dengan Harga":
+    
+    st.subheader("Korelasi antara Model dan Harga Mobil")
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data['model'], data['price'], alpha=0.6, color='green')
+    plt.xlabel('Model Mobil')
+    plt.ylabel('Harga Mobil')
+    plt.title('Korelasi antara Model dan Harga Mobil')
+    st.pyplot()
+    
+    
+    
     st.subheader("Hubungan Antara Tahun Keluaran dan Harga")
     plt.figure(figsize=(10, 6))
     plt.scatter(data['year'], data['price'], alpha=0.5)
@@ -164,6 +258,14 @@ elif visualization_option == "Hubungan dengan Harga":
     plt.ylabel('Rata-rata Harga')
     plt.title('Hubungan Antara Jenis Transmisi dan Harga')
     st.pyplot()
+    
+    st.subheader("Korelasi antara Jarak Tempuh dan Harga Mobil")
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data['mileage'], data['price'], alpha=0.6, color='red')
+    plt.xlabel('Jarak Tempuh')
+    plt.ylabel('Harga Mobil')
+    plt.title('Korelasi antara Jarak Tempuh dan Harga Mobil')
+    st.pyplot()
 
     st.subheader("Hubungan Antara Jenis Bahan Bakar dan Harga")
     plt.figure(figsize=(8, 5))
@@ -173,8 +275,31 @@ elif visualization_option == "Hubungan dengan Harga":
     plt.ylabel('Rata-rata Harga')
     plt.title('Hubungan Antara Jenis Bahan Bakar dan Harga')
     st.pyplot()
-
-    # ... (Visualisasi lainnya) ...
+    
+    st.subheader("Korelasi antara Pajak dan Harga Mobil")
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data['tax'], data['price'], alpha=0.6, color='blue')
+    plt.xlabel('Pajak Mobil')
+    plt.ylabel('Harga Mobil')
+    plt.title('Korelasi antara Pajak dan Harga Mobil')
+    st.pyplot()
+    
+    st.subheader("Korelasi antara Konsumsi BBM dan Harga Mobil")
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data['mpg'], data['price'], alpha=0.6, color='orange')
+    plt.xlabel('Konsumsi BBM')
+    plt.ylabel('Harga Mobil')
+    plt.title('Korelasi antara Konsumsi BBM dan Harga Mobil')
+    st.pyplot()
+    
+    st.subheader("Korelasi antara Ukuran Mesin dan Harga Mobil")
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data['engineSize'], data['price'], alpha=0.6, color='purple')
+    plt.xlabel('Ukuran Mesin')
+    plt.ylabel('Harga Mobil')
+    plt.title('Korelasi antara Ukuran Mesin dan Harga Mobil')
+    st.pyplot()
+    
 # Background image styling
 def add_bg_from_url():
     st.markdown(
