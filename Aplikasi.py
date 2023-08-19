@@ -196,6 +196,12 @@ if visualization_option == "Diagram Model Mobil":
         )
         st.altair_chart(mpg_chart, use_container_width=True)
         
+from sklearn.preprocessing import LabelEncoder
+
+# Menggunakan LabelEncoder untuk mengubah fitur "model" menjadi numerik
+label_encoder = LabelEncoder()
+data['model_encoded'] = label_encoder.fit_transform(data['model'])
+
 if visualization_option == "Analisis Fitur Prediksi Harga":
     correlation_matrix = data.corr()
     st.write("Matriks Korelasi Antara Fitur:")
@@ -218,7 +224,6 @@ if visualization_option == "Analisis Fitur Prediksi Harga":
             height=400
         )
         st.altair_chart(scatter_selected_feature)
-
 
 if visualization_option == "Distribusi Data":
     st.subheader("Distribusi Model Mobil")
