@@ -107,7 +107,8 @@ st.image('mobil.png', use_column_width=True)
 
 data = pd.read_csv('toyota.csv')
 
-visualization_option = st.selectbox("Pilih Visualisasi:", ["Dashboard", "Distribusi Data", "Hubungan dengan Harga"])
+visualization_option = st.sidebar.selectbox("Pilih Visualisasi:", ["Dashboard", "Diagram Model Mobil", "Analisis Fitur Prediksi Harga" , "Distribusi Data", "Hubungan dengan Harga"])
+
 
 if visualization_option == "Dashboard":
     selected_year = st.sidebar.slider("Select Year", int(data["year"].min()), int(data["year"].max()))
@@ -159,6 +160,65 @@ if visualization_option == "Dashboard":
     avg_price_by_engineSize = filtered_data.groupby ("engineSize")["price"].mean()
     st.write("Average Price by Engine Size:")
     st.bar_chart(avg_price_by_engineSize)
+    
+if visualization_option == "Diagram Model Mobil":
+    category_option = st.sidebar.selectbox("Pilih Kategori:", ["year", "price", "transmission", "mileage", "fuelType", "tax", "mpg", "engineSize"])
+    
+    if category_option == "price":
+        st.warning("Mohon pilih kategori yang lain selain price")
+    else:
+        st.subheader(f"Jumlah Kategori Mobil Berdasarkan {category_option.capitalize()}")
+        category_count = data.groupby(category_option)["model"].count()
+        st.bar_chart(category_count)
+
+        st.subheader(f"Kategori Mobil Termahal Berdasarkan {category_option.capitalize()}")
+        category_max_price = data.groupby(category_option)["price"].max()
+        st.bar_chart(category_max_price)
+
+    if category_option == "tax":
+        st.subheader("Kategori Mobil dengan Tax Termahal")
+        category_max_tax = data.groupby("model")["tax"].max()
+        st.bar_chart(category_max_tax)
+
+    if category_option == "mileage":
+        st.subheader("Kategori Mobil dengan Mileage Terbanyak")
+        category_max_mileage = data.groupby("model")["mileage"].max()
+        st.bar_chart(category_max_mileage)
+
+    if category_option == "mpg":
+        st.subheader("Jumlah Mobil dengan MPG Terbanyak")
+        max_mpg_model = data.groupby("model")["mpg"].sum().idxmax()
+        max_mpg_data = data[data["model"] == max_mpg_model]
+        mpg_chart = alt.Chart(max_mpg_data).mark_bar().encode(
+            x="model",
+            y="mpg",
+            tooltip=["model", "mpg"]
+        )
+        st.altair_chart(mpg_chart, use_container_width=True)
+        
+if visualization_option == "Analisis Fitur Prediksi Harga":
+    correlation_matrix = data.corr()
+    st.write("Matriks Korelasi Antara Fitur:")
+    st.write(correlation_matrix)
+
+    st.subheader("Fitur dengan Korelasi Tinggi Terhadap Prediksi Harga:")
+    target_correlation = correlation_matrix["price"].sort_values(ascending=False)
+    st.bar_chart(target_correlation)
+
+    selected_feature = st.sidebar.selectbox("Pilih Fitur:", data.columns)
+    if selected_feature == "price":
+        st.warning("Mohon pilih fitur lain selain 'price'")
+    else:
+        st.subheader(f"Hubungan Antara {selected_feature.capitalize()} dan Prediksi Harga")
+        scatter_selected_feature = alt.Chart(data).mark_circle().encode(
+            x=selected_feature,
+            y="price"
+        ).properties(
+            width=600,
+            height=400
+        )
+        st.altair_chart(scatter_selected_feature)
+
 
 if visualization_option == "Distribusi Data":
     st.subheader("Distribusi Model Mobil")
