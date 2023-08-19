@@ -203,7 +203,7 @@ label_encoder = LabelEncoder()
 data['model_encoded'] = label_encoder.fit_transform(data['model'])
 
 if visualization_option == "Analisis Fitur Prediksi Harga":
-    numeric_data = data.select_dtypes(include=['number'])  # Memilih kolom numerik saja
+    numeric_data = data.select_dtypes(include=['number'])  # Select only numeric columns
     correlation_matrix = numeric_data.corr()
     st.write("Matriks Korelasi Antara Fitur:")
     st.write(correlation_matrix)
@@ -219,13 +219,15 @@ if visualization_option == "Analisis Fitur Prediksi Harga":
         st.subheader(f"Hubungan Antara {selected_feature.capitalize()} dan Prediksi Harga")
         scatter_selected_feature = alt.Chart(data).mark_circle().encode(
             x=selected_feature,
-            y="price"
+            y="price",
+            color='model_encoded:N',  # Add color based on model_encoded
+            tooltip=['model', selected_feature, 'price']
         ).properties(
             width=600,
             height=400
         )
         st.altair_chart(scatter_selected_feature)
-
+        
 if visualization_option == "Distribusi Data":
     st.subheader("Distribusi Model Mobil")
     plt.figure(figsize=(12, 6))
