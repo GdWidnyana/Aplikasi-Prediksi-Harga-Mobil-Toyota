@@ -198,12 +198,13 @@ if visualization_option == "Diagram Model Mobil":
         
 from sklearn.preprocessing import LabelEncoder
 
-# Menggunakan LabelEncoder untuk mengubah fitur "model" menjadi numerik
+# Membuat kolom baru dengan label encoding untuk kolom 'model'
 label_encoder = LabelEncoder()
 data['model_encoded'] = label_encoder.fit_transform(data['model'])
 
 if visualization_option == "Analisis Fitur Prediksi Harga":
-    correlation_matrix = data.corr()
+    numeric_data = data.select_dtypes(include=['number'])  # Memilih kolom numerik saja
+    correlation_matrix = numeric_data.corr()
     st.write("Matriks Korelasi Antara Fitur:")
     st.write(correlation_matrix)
 
@@ -211,7 +212,7 @@ if visualization_option == "Analisis Fitur Prediksi Harga":
     target_correlation = correlation_matrix["price"].sort_values(ascending=False)
     st.bar_chart(target_correlation)
 
-    selected_feature = st.sidebar.selectbox("Pilih Fitur:", data.columns)
+    selected_feature = st.sidebar.selectbox("Pilih Fitur:", numeric_data.columns)
     if selected_feature == "price":
         st.warning("Mohon pilih fitur lain selain 'price'")
     else:
