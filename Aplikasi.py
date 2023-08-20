@@ -167,11 +167,11 @@ if visualization_option == "Diagram Model Mobil":
     if category_option == "price":
         st.warning("Mohon pilih kategori yang lain selain price")
     else:
-        st.subheader(f"Jumlah Kategori Mobil Berdasarkan {category_option.capitalize()}")
+        st.subheader(f"Total Mobil Berdasarkan Kategori {category_option.capitalize()}")
         category_count = data.groupby(category_option)["model"].count()
         st.bar_chart(category_count)
 
-        st.subheader(f"Kategori Mobil Termahal Berdasarkan {category_option.capitalize()}")
+        st.subheader(f"Harga Mobil Termahal Berdasarkan {category_option.capitalize()}")
         category_max_price = data.groupby(category_option)["price"].max()
         st.bar_chart(category_max_price)
 
